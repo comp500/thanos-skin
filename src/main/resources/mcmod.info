@@ -1,0 +1,9 @@
+[{
+  "modid": "thanosskin",
+  "name": "thanos skin",
+  "description": "hey guys look its thanos from fortnite",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "authorList": ["comp500"],
+  "url": "https://github.com/comp500/thanos-skin/"
+}]
