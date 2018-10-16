@@ -19,23 +19,19 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
-import net.minecraftforge.client.model.pipeline.VertexBufferConsumer;
-import net.minecraftforge.client.model.pipeline.VertexLighterFlat;
+import net.minecraftforge.client.model.pipeline.LightUtil;
 import net.minecraftforge.common.model.TRSRTransformation;
 
 public class ThanosPlayerRender extends Render<EntityPlayer> {
 	
 	private IModel thanosModelUnbaked;
 	private IBakedModel thanosModel;
-	private final VertexLighterFlat lighter;
 	
 	private void loadThanosModel() {
 		try {
@@ -43,13 +39,12 @@ public class ThanosPlayerRender extends Render<EntityPlayer> {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		thanosModel = thanosModelUnbaked.bake(TRSRTransformation.identity(), DefaultVertexFormats.BLOCK, ModelLoader.defaultTextureGetter());
+		thanosModel = thanosModelUnbaked.bake(TRSRTransformation.identity(), DefaultVertexFormats.ITEM, ModelLoader.defaultTextureGetter());
 	}
 
 	protected ThanosPlayerRender(RenderManager renderManager) {
 		super(renderManager);
 		loadThanosModel();
-		lighter = new VertexLighterFlat(Minecraft.getMinecraft().getBlockColors());
 	}
 
 	@Override
@@ -59,32 +54,21 @@ public class ThanosPlayerRender extends Render<EntityPlayer> {
 	
 	@Override
 	public void doRender(EntityPlayer entity, double x, double y, double z, float entityYaw, float partialTicks) {
-        BlockPos pos = new BlockPos(entity.posX, entity.posY + entity.height, entity.posZ);
-
         RenderHelper.disableStandardItemLighting();
         Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-        
         GlStateManager.pushMatrix();
         GlStateManager.translate((float)x, (float)y, (float)z);
         GlStateManager.rotate(-entity.rotationYaw, 0, 1, 0);
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder builder = tessellator.getBuffer();
-        builder.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
-        //builder.setTranslation(-0.5, -1.5, -0.5);
-
-        lighter.setParent(new VertexBufferConsumer(builder));
-        lighter.setWorld(entity.world);
-        lighter.setState(Blocks.AIR.getDefaultState());
-        lighter.setBlockPos(pos);
-        boolean empty = true;
+        builder.begin(GL11.GL_QUADS, DefaultVertexFormats.ITEM);
+        
         List<BakedQuad> quads = thanosModel.getQuads(null, null, 0);
         if(!quads.isEmpty())
         {
-            lighter.updateBlockInfo();
-            empty = false;
             for(BakedQuad quad : quads)
             {
-                quad.pipe(lighter);
+            	LightUtil.renderQuadColor(builder, quad, -1);
             }
         }
         for(EnumFacing side : EnumFacing.values())
@@ -92,21 +76,13 @@ public class ThanosPlayerRender extends Render<EntityPlayer> {
             quads = thanosModel.getQuads(null, side, 0);
             if(!quads.isEmpty())
             {
-                if(empty) lighter.updateBlockInfo();
-                empty = false;
                 for(BakedQuad quad : quads)
                 {
-                    quad.pipe(lighter);
+                    LightUtil.renderQuadColor(builder, quad, -1);
                 }
             }
         }
-
-        // debug quad
-        /*VertexBuffer.pos(0, 1, 0).color(0xFF, 0xFF, 0xFF, 0xFF).tex(0, 0).lightmap(240, 0).endVertex();
-        VertexBuffer.pos(0, 1, 1).color(0xFF, 0xFF, 0xFF, 0xFF).tex(0, 1).lightmap(240, 0).endVertex();
-        VertexBuffer.pos(1, 1, 1).color(0xFF, 0xFF, 0xFF, 0xFF).tex(1, 1).lightmap(240, 0).endVertex();
-        VertexBuffer.pos(1, 1, 0).color(0xFF, 0xFF, 0xFF, 0xFF).tex(1, 0).lightmap(240, 0).endVertex();*/
-
+        
         builder.setTranslation(0, 0, 0);
 
         tessellator.draw();
