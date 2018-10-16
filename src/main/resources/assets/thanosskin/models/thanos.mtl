@@ -1,0 +1,24 @@
+# Blender MTL File: 'None'
+# Material Count: 2
+
+newmtl COC_iOS_VIL_THA_CUR_B
+Ns 94.117647
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.025000 0.025000 0.025000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd thanosskin:blocks/thanos_texture_body_d
+
+newmtl COC_iOS_VIL_THA_CUR_F
+Ns 94.117647
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.025000 0.025000 0.025000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd thanosskin:blocks/thanos_texture_face_d
